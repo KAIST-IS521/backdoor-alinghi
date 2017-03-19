@@ -38,10 +38,17 @@ void usageExit() {
     exit(1);
 }
 
+//in case of invalidOpCode
+void invalidOpCode(struct VMContext* ctx, const uint32_t instr)
+{
+    printf("Invalid OpCode\nTerminate the Program\n");
+    exit(1);
+}
+
 void initFuncs(FunPtr *f, uint32_t cnt) {
     uint32_t i;
     for (i = 0; i < cnt; i++) {
-        f[i] = NULL;
+        f[i] = invalidOpCode;
     }
 
     // TODO: initialize function pointers

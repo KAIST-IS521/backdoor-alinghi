@@ -416,6 +416,90 @@ void jump(struct VMContext* ctx, const uint32_t instr){
 }
 
 
+void put(struct VMContext* ctx, const uint32_t instr){
+    /*
+    This instruction outputs an ASCII string (terminated by a NULL
+    character) located at memory address (reg) to the screen. The
+    semantics of puts instruction is equivalent to the puts function
+    in LIBC except that it does not append a newline character at the
+    end.
+    */
+
+    //Extract Operand
+    const uint8_t address_contain_register = EXTRACT_B1(instr);
+    int address=ctx->r[address_contain_register].value;
+
+    /*BEGIN test purpose
+    heap[10]='U';
+    heap[11]='s';
+    heap[12]='e';
+    heap[13]='r';
+    heap[14]=0;
+    heap[15]='B';
+
+    printf("%s\n",heap+10);
+    printf("%d\n",*(heap+10));
+    printf("%d\n",*(heap+14));
+    END test purpose*/
+
+
+    int length=0;
+    while(*(heap+address+length)!='\0')
+    {
+        length++;
+        //8192 heap exist
+        //Over 8191 is illegal
+        if(address+length>8191)
+        {
+            printf("Invalid heap access\n");
+            exit(1);
+        }
+    }
+
+
+    //actual implementation
+    printf("%s",heap+address);
+
+}
+void get(struct VMContext* ctx, const uint32_t instr){
+    /*
+    This instruction takes an ASCII string (terminated by a NULL
+    character) as input from STDIN and store the string to memory
+    address (reg). The semantics of gets instruction is equivalent to
+    the gets function in LIBC. Specifically, reading stops when a
+    newline character is found, and a NULL character is appended to
+    the end of the string.
+    */
+
+    //Extract Operand
+    const uint8_t address_contain_register = EXTRACT_B1(instr);
+
+    char inputString[81];
+    int address=ctx->r[address_contain_register].value;
+
+    fgets(inputString,81,stdin);
+
+    int length=0;
+    while(*(inputString+length)!='\0')
+        length++;
+
+    *(inputString+length-1)=0x00;
+    //8192 heap exist
+    //Over 8191 is illegal
+    if(address+length>8191)
+    {
+        printf("Invalid heap access\n");
+        exit(1);
+    }
+    printf("program counter : %d\n",program_counter);
+    //memcpy of contents
+    memcpy(heap+address,inputString,length);
+
+    //test purpose printf
+    //printf("memcpy : %s\n",heap+address);  
+
+}
+
 //in case of invalidOpCode
 void invalidOpCode(struct VMContext* ctx, const uint32_t instr)
 {
@@ -442,6 +526,8 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
     f[0x90] = eq;
     f[0xa0] = ite;
     f[0xb0] = jump;
+    f[0xc0] = put;
+    f[0xd0] = get;
 }
 
 void initRegs(Reg *r, uint32_t cnt)

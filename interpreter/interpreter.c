@@ -4,16 +4,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "minivm.h"
 
 #define NUM_REGS   (256)
 #define NUM_FUNCS  (256)
 
+// Buffer declaration motivated by P. Conrad's arith.c
+// Upto 256 instructor(issue number 66 in GIT)
+#define BUFF_SIZE 2048 
+char buffer[BUFF_SIZE]; 
+
+// Heap declaration
+uint8_t* heap;
+
+// Program Counter relate Variables
+static uint32_t* pc;
+static int program_counter;//program_counter
+
+// 4bytes=1instruction
+// bytes_loaded/4=length of program
+// bytes loaded
+static int bytes_loaded;
+
+
 // Global variable that indicates if the process is running.
 static bool is_running = true;
 
 void usageExit() {
-    // TODO: show usage
+    //show usage
+    printf("USAGE: ./interpreter [bytecode_file_name]\n");
+    //exit with failure
     exit(1);
 }
 
@@ -42,7 +63,10 @@ int main(int argc, char** argv) {
     Reg r[NUM_REGS];
     FunPtr f[NUM_FUNCS];
     FILE* bytecode;
-    uint32_t* pc;
+
+    // Buffer declaration motivated by P. Conrad's arith.c
+    // Upto 256 instructor(issue number 66 in GIT)
+    char buffer[BUFF_SIZE];
 
     // There should be at least one argument.
     if (argc < 2) usageExit();
@@ -60,6 +84,21 @@ int main(int argc, char** argv) {
         perror("fopen");
         return 1;
     }
+
+    // Read bytecode
+    bytes_loaded = fread((void*)&buffer, 1, 2048, bytecode);
+    pc = (uint32_t*) &buffer;    
+
+    // Allocate Heap(8192)
+    heap=(uint8_t*)malloc(8192);
+    // Check allocation fail
+    if(heap==NULL){
+        fprintf(stderr,"heap allocation failed\n");
+        exit(1);
+    }
+
+    // Init program_counter
+    program_counter=0;
 
     while (is_running) {
         // TODO: Read 4-byte bytecode, and set the pc accordingly

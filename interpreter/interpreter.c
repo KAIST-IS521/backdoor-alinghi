@@ -491,7 +491,7 @@ void get(struct VMContext* ctx, const uint32_t instr){
         printf("Invalid heap access\n");
         exit(1);
     }
-    printf("program counter : %d\n",program_counter);
+    //printf("program counter : %d\n",program_counter);
     //memcpy of contents
     memcpy(heap+address,inputString,length);
 

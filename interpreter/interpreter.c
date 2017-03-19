@@ -27,6 +27,10 @@ static int program_counter;//program_counter
 // bytes loaded
 static int bytes_loaded;
 
+//isJump true -> auto increasing of pc is denied
+//isJump false -> automatically pc++, program_counter++
+static bool isJump=false;
+
 
 // Global variable that indicates if the process is running.
 static bool is_running = true;
@@ -329,6 +333,89 @@ void eq(struct VMContext* ctx, const uint32_t instr){
 }
 
 
+void ite(struct VMContext* ctx, const uint32_t instr){
+    /*
+    This instruction (if-then-else) checks the value of the first
+    register, and changes the instruction pointer to have a value
+    (either of the second and the third operand). When the register
+    value is greater than zero, then the instruction pointer will have
+    the value of the second operand in the next execution. If the
+    register value is equal to zero, then the instruction pointer will
+    have the value of the third operand. The instruction pointer can
+    have an address ranging from 0 (the first instruction) to N,
+    where N is the number of instructions in the code. See
+    jump instruction for more details.
+    */
+
+    const uint8_t indicator = EXTRACT_B1(instr);
+    const uint8_t if_addr = EXTRACT_B2(instr);        
+    const uint8_t else_addr = EXTRACT_B3(instr);
+
+    if(ctx->r[indicator].value>0)
+    {
+        if(if_addr>=(bytes_loaded/4)){
+            printf("terminate program due to invalid Program Counter\n");
+            exit(1);
+        }
+
+        //Correct pc pointer to intended value
+        pc=pc-program_counter+if_addr;
+        program_counter=if_addr;
+        isJump=true;
+    }
+    else
+    {
+        if(else_addr>=(bytes_loaded/4)){
+            printf("terminate program due to invalid Program Counter\n");            
+            exit(1);
+        }
+
+        //Correct pc pointer to intended value
+        pc=pc-program_counter+else_addr;
+        program_counter=else_addr;
+        isJump=true;
+    }
+}
+
+void jump(struct VMContext* ctx, const uint32_t instr){
+    /*
+    This is a jump instruction that changes the instruction pointer.
+    The immediate value indicates an address to be executed in the
+    next instruction. The target address is an absolute index of an
+    instruction in the code. For example, jump 2 means the
+    next instruction pointer should point to the third instruction of
+    the code. If the target instruction does not exist, the VM should
+    produce an error message and terminate immediately.
+    */
+
+
+    //Extract new program counter value
+    const uint8_t new_pc = EXTRACT_B1(instr);
+
+    /*
+    //Debug purpose
+    printf("--JUMP--\n");
+    printf("new pc %d pc  %d \n", new_pc, program_counter);
+    */
+
+    if(new_pc>=(bytes_loaded/4))
+    {
+        //Debug purpose
+        //printf("%d bytes_loaded %d new_pc\n",bytes_loaded,new_pc);
+
+        printf("terminate program due to invalid Program Counter\n");
+
+        //Terminate when pc value is invalid
+        exit(1);
+    }
+
+    //Correct pc pointer to intended value
+    pc=pc-program_counter+new_pc;
+    program_counter=new_pc;
+    isJump=true;
+}
+
+
 //in case of invalidOpCode
 void invalidOpCode(struct VMContext* ctx, const uint32_t instr)
 {
@@ -353,6 +440,8 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
     f[0x70] = gt;
     f[0x80] = ge;
     f[0x90] = eq;
+    f[0xa0] = ite;
+    f[0xb0] = jump;
 }
 
 void initRegs(Reg *r, uint32_t cnt)
@@ -406,9 +495,23 @@ int main(int argc, char** argv) {
     // Init program_counter
     program_counter=0;
 
+    //Start Running
     while (is_running) {
-        // TODO: Read 4-byte bytecode, and set the pc accordingly
+        //Read 4-byte bytecode, and set the pc accordingly
         stepVMContext(&vm, &pc);
+        
+        //in case of jump or ite
+        if(isJump)
+        {
+            //stepVMContext make pc++ operation so we have to change it when JUMP
+            isJump=false;
+            pc--;
+        }
+        //otherwise
+        else
+        {
+            program_counter++;
+        }
     }
 
     fclose(bytecode);

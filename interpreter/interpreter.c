@@ -224,6 +224,111 @@ void sub(struct VMContext* ctx, const uint32_t instr){
 
 }
 
+
+void gt(struct VMContext* ctx, const uint32_t instr){
+    //Extract Operand1 as destination register
+    //Operand2 as addition operand #1
+    //Operand3 as addition operand #2
+    const uint8_t destination_register = EXTRACT_B1(instr);
+    const uint8_t op1 = EXTRACT_B2(instr);        
+    const uint8_t op2 = EXTRACT_B3(instr);
+
+    //actual operation
+        //assign 1 if OP1>OP2
+    if(ctx->r[op1].value>ctx->r[op2].value)
+        ctx->r[destination_register].value=1;
+        //assign 0 otherwise
+    else
+        ctx->r[destination_register].value=0;
+
+    /*
+    //test
+    printf("--GT--\n");
+         //assign 1 if OP1>OP2
+    ctx->r[5].value=0xffffffff;
+    ctx->r[6].value=0x00001111;
+    if(ctx->r[5].value>ctx->r[6].value)
+        ctx->r[7].value=1;
+        //assign 0 otherwise
+    else
+        ctx->r[7].value=0;
+    printf("%d > %d so result %d\n",ctx->r[5].value,ctx->r[6].value,ctx->r[7].value);
+    printf("%u > %u so result %u\n",ctx->r[5].value,ctx->r[6].value,ctx->r[7].value);
+
+    printf("A: %u > %u so result %u\n",ctx->r[op1].value,ctx->r[op2].value,ctx->r[destination_register].value);
+    */
+
+}
+
+void ge(struct VMContext* ctx, const uint32_t instr){
+    //Extract Operand1 as destination register
+    //Operand2 as addition operand #1
+    //Operand3 as addition operand #2
+    const uint8_t destination_register = EXTRACT_B1(instr);
+    const uint8_t op1 = EXTRACT_B2(instr);        
+    const uint8_t op2 = EXTRACT_B3(instr);
+
+    //actual operation
+        //assign 1 if OP1>=OP2
+    if(ctx->r[op1].value>=ctx->r[op2].value)
+        ctx->r[destination_register].value=1;
+        //assign 0 otherwise
+    else
+        ctx->r[destination_register].value=0;
+
+    /*
+    //test
+    printf("--GE--\n");
+         //assign 1 if OP1>OP2
+    ctx->r[5].value=0xffffffff;
+    ctx->r[6].value=0xffffffff;
+    if(ctx->r[5].value>=ctx->r[6].value)
+        ctx->r[7].value=1;
+        //assign 0 otherwise
+    else
+        ctx->r[7].value=0;
+    printf("%d >= %d so result %d\n",ctx->r[5].value,ctx->r[6].value,ctx->r[7].value);
+    printf("%u >= %u so result %u\n",ctx->r[5].value,ctx->r[6].value,ctx->r[7].value);
+
+    printf("A: %u >= %u so result %u\n",ctx->r[op1].value,ctx->r[op2].value,ctx->r[destination_register].value);
+    */
+}
+
+void eq(struct VMContext* ctx, const uint32_t instr){
+    //Extract Operand1 as destination register
+    //Operand2 as addition operand #1
+    //Operand3 as addition operand #2
+    const uint8_t destination_register = EXTRACT_B1(instr);
+    const uint8_t op1 = EXTRACT_B2(instr);        
+    const uint8_t op2 = EXTRACT_B3(instr);
+    //printf("eq %d %d\n",ctx->r[op1].value,ctx->r[op2].value);
+    //actual operation
+        //assign 1 if OP1==OP2
+    if(ctx->r[op1].value==ctx->r[op2].value)
+        ctx->r[destination_register].value=1;
+        //assign 0 otherwise
+    else
+        ctx->r[destination_register].value=0;
+
+    /*
+    //test
+    printf("--EQ--\n");
+         //assign 1 if OP1>OP2
+    ctx->r[5].value=0xffffffff;
+    ctx->r[6].value=0x00001111;
+    if(ctx->r[5].value==ctx->r[6].value)
+        ctx->r[7].value=1;
+        //assign 0 otherwise
+    else
+        ctx->r[7].value=0;
+    printf("%d == %d so result %d\n",ctx->r[5].value,ctx->r[6].value,ctx->r[7].value);
+    printf("%u == %u so result %u\n",ctx->r[5].value,ctx->r[6].value,ctx->r[7].value);
+
+    printf("A: %u == %u so result %u\n",ctx->r[op1].value,ctx->r[op2].value,ctx->r[destination_register].value);
+    */
+}
+
+
 //in case of invalidOpCode
 void invalidOpCode(struct VMContext* ctx, const uint32_t instr)
 {
@@ -245,6 +350,9 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
     f[0x40] = puti;
     f[0x50] = add;
     f[0x60] = sub;
+    f[0x70] = gt;
+    f[0x80] = ge;
+    f[0x90] = eq;
 }
 
 void initRegs(Reg *r, uint32_t cnt)

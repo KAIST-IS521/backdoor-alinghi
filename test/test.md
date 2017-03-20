@@ -8,7 +8,7 @@ This program use 12 opcode except 'ge' and 'move' command.
 	* Otherwise it prints out 0~9.
 
 ### PseudoCode
-'''
+```C
 #include <stdio.h>
 #include <strlen.h>
 
@@ -26,4 +26,4 @@ int main(void){
 
 	return 0;
 }
-'''
+```

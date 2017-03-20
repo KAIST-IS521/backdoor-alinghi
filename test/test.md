@@ -1,4 +1,4 @@
-#Test Program
+# Test Program
 This test program designed for testing opcode operations.
 This program use 12 opcode except 'ge' and 'move' command.
 
@@ -7,7 +7,7 @@ This program use 12 opcode except 'ge' and 'move' command.
 	* In case of length is bigger than 9. It prints out 'over 10'
 	* Otherwise it prints out 0~9.
 
-###PseudoCode
+### PseudoCode
 '''
 #include <stdio.h>
 #include <strlen.h>

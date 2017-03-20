@@ -11,7 +11,7 @@
 
 * ./backdoor : 백도어가 심어져 있는 인터프리터
 
-* ./compiler/compiler.ml : 처음 클로한것과 동일한 컴파일러
+* ./compiler/compiler.ml : 처음 클론한것과 동일한 컴파일러
 
 * ./README.md 현재 읽고 있는 파일
 
